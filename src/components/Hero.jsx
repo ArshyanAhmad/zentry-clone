@@ -1,6 +1,13 @@
 // 34.52 minutes
+// 47 minutes 1 bug has also
+// 50 minutes
+
 import React from "react";
+import Button from "./Button";
+import gsap from "gsap";
 import { useState, useRef } from "react";
+import { TiLocationArrow } from "react-icons/ti";
+import { useGSAP } from "@gsap/react";
 
 const Hero = () => {
   const [currrentIndex, setCurrrentIndex] = useState(1);
@@ -22,6 +29,32 @@ const Hero = () => {
     setCurrrentIndex(upcomingVideoIndex);
   };
 
+  useGSAP(
+    () => {
+      if (hasClicked) {
+        gsap.set("#next-video", { visibility: "visible" });
+
+        gsap.to("#next-video", {
+          transformOrigin: "center center",
+          scale: 1,
+          width: "100%",
+          height: "100%",
+          duration: 1,
+          ease: "power1.inOut",
+          onStart: () => nextVideoRef.current.play(),
+        });
+
+        gsap.from("#current-video", {
+          transformOrigin: "center center",
+          scale: 0,
+          duration: 1.5,
+          ease: "power1.inOut",
+        });
+      }
+    },
+    { dependencies: [currrentIndex], revertOnUpdate: true }
+  );
+
   const getVideoSource = (index) => `videos/hero-${index}.mp4`;
 
   return (
@@ -38,7 +71,7 @@ const Hero = () => {
             >
               <video
                 ref={nextVideoRef}
-                src={getVideoSource(currrentIndex + 1)}
+                src={getVideoSource(upcomingVideoIndex)}
                 loop
                 muted
                 id="current-video"
@@ -47,8 +80,56 @@ const Hero = () => {
               />
             </div>
           </div>
+
+          <video
+            ref={nextVideoRef}
+            src={getVideoSource(currrentIndex)}
+            loop
+            muted
+            id="next-video"
+            className="absolute-center invisible absolute z-20 size-64 object-cover object-center"
+          />
+
+          <video
+            src={getVideoSource(
+              currrentIndex === totalVideos - 1 ? 1 : currrentIndex
+            )}
+            autoPlay
+            loop
+            muted
+            className="absolute left-0 top-0 size-full object-cover object-center"
+            onLoadedData={handleVideoLoad}
+          />
+        </div>
+
+        <h1 className="special-font hero-heading absolute bottom-5 right-5 z-40 text-blue-75">
+          G<b>a</b>ming
+        </h1>
+
+        <div className="absolute left-0 top-0 z-40 size-full ">
+          <div className="mt-24 px-5 sm:px-10">
+            <h1 className="special-font hero-heading text-blue-100">
+              redefi<b>n</b>e
+            </h1>
+
+            <p className="mb-5 max-w-64 font-robert-regular text-blue-100">
+              Enter the Metagame Layer
+              <br />
+              Unleash the Play Economy
+            </p>
+            <Button
+              id="watch-trailer"
+              title="Watch Trailer"
+              leftIcon={<TiLocationArrow />}
+              containerClass="!bg-yellow-300 flex-center gap-1"
+            />
+          </div>
         </div>
       </div>
+
+      <h1 className="special-font hero-heading absolute bottom-5 right-5  text-black">
+        G<b>a</b>ming
+      </h1>
     </div>
   );
 };
